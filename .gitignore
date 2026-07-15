@@ -1,0 +1,4 @@
+# 数据集中间生成的二进制文件
+data/poetry_char/train.bin
+data/poetry_char/val.bin
+data/poetry_char/meta.pkl
