@@ -1,12 +1,17 @@
 """
 将 chinese-poetry 仓库的 JSON 数据转换为 nanoGPT 训练用的 input.txt 格式。
 每行一首诗，格式: 标题|作者|正文
+所有文本统一转换为简体中文。
 
 数据来源: https://github.com/chinese-poetry/chinese-poetry
 """
 import os
 import json
 import glob
+from opencc import OpenCC
+
+# 繁体转简体
+cc = OpenCC('t2s')
 
 # chinese-poetry 仓库路径（克隆到 /tmp/chinese-poetry）
 REPO_PATH = '/tmp/chinese-poetry'
@@ -36,6 +41,10 @@ with open(OUTPUT_PATH, 'w', encoding='utf-8') as out:
             content = ''.join(paragraphs)
             # 清理内容中的换行符
             content = content.replace('\n', '').replace('\r', '')
+            # 繁体转简体
+            title = cc.convert(title)
+            author = cc.convert(author)
+            content = cc.convert(content)
             line = f"{title}|{author}|{content}\n"
             out.write(line)
             tang_count += 1
@@ -59,6 +68,10 @@ with open(OUTPUT_PATH, 'w', encoding='utf-8') as out:
                 continue
             content = ''.join(paragraphs)
             content = content.replace('\n', '').replace('\r', '')
+            # 繁体转简体
+            title = cc.convert(title)
+            author = cc.convert(author)
+            content = cc.convert(content)
             line = f"{title}|{author}|{content}\n"
             out.write(line)
             song_count += 1
@@ -83,6 +96,10 @@ with open(OUTPUT_PATH, 'w', encoding='utf-8') as out:
                 continue
             content = ''.join(paragraphs)
             content = content.replace('\n', '').replace('\r', '')
+            # 繁体转简体
+            title = cc.convert(title)
+            author = cc.convert(author)
+            content = cc.convert(content)
             line = f"{title}|{author}|{content}\n"
             out.write(line)
             ci_count += 1
