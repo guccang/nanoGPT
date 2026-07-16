@@ -1,6 +1,6 @@
 """
 将 chinese-poetry 仓库的 JSON 数据转换为 nanoGPT 训练用的 input.txt 格式。
-每行一首诗，格式: 标题|作者|正文
+每行一首诗，格式: 标题|正文
 所有文本统一转换为简体中文。
 
 数据来源: https://github.com/chinese-poetry/chinese-poetry
@@ -31,7 +31,6 @@ with open(OUTPUT_PATH, 'w', encoding='utf-8') as out:
         with open(fpath, 'r', encoding='utf-8') as f:
             poems = json.load(f)
         for poem in poems:
-            author = poem.get('author', '佚名')
             title = poem.get('title', '无题')
             # paragraphs 是列表，每个元素是一联，用句号分隔
             paragraphs = poem.get('paragraphs', [])
@@ -43,9 +42,8 @@ with open(OUTPUT_PATH, 'w', encoding='utf-8') as out:
             content = content.replace('\n', '').replace('\r', '')
             # 繁体转简体
             title = cc.convert(title)
-            author = cc.convert(author)
             content = cc.convert(content)
-            line = f"{title}|{author}|{content}\n"
+            line = f"{title}|{content}\n"
             out.write(line)
             tang_count += 1
     print(f"唐诗写入: {tang_count} 首")
@@ -61,7 +59,6 @@ with open(OUTPUT_PATH, 'w', encoding='utf-8') as out:
         with open(fpath, 'r', encoding='utf-8') as f:
             poems = json.load(f)
         for poem in poems:
-            author = poem.get('author', '佚名')
             title = poem.get('title', '无题')
             paragraphs = poem.get('paragraphs', [])
             if not paragraphs:
@@ -70,9 +67,8 @@ with open(OUTPUT_PATH, 'w', encoding='utf-8') as out:
             content = content.replace('\n', '').replace('\r', '')
             # 繁体转简体
             title = cc.convert(title)
-            author = cc.convert(author)
             content = cc.convert(content)
-            line = f"{title}|{author}|{content}\n"
+            line = f"{title}|{content}\n"
             out.write(line)
             song_count += 1
     print(f"宋诗写入: {song_count} 首")
@@ -88,7 +84,6 @@ with open(OUTPUT_PATH, 'w', encoding='utf-8') as out:
         with open(fpath, 'r', encoding='utf-8') as f:
             poems = json.load(f)
         for poem in poems:
-            author = poem.get('author', '佚名')
             # 宋词用 rhythmic（词牌名）作为标题
             title = poem.get('rhythmic', '无题')
             paragraphs = poem.get('paragraphs', [])
@@ -98,9 +93,8 @@ with open(OUTPUT_PATH, 'w', encoding='utf-8') as out:
             content = content.replace('\n', '').replace('\r', '')
             # 繁体转简体
             title = cc.convert(title)
-            author = cc.convert(author)
             content = cc.convert(content)
-            line = f"{title}|{author}|{content}\n"
+            line = f"{title}|{content}\n"
             out.write(line)
             ci_count += 1
     print(f"宋词写入: {ci_count} 首")
