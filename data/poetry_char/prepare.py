@@ -42,15 +42,18 @@ data = ''.join(lines)
 print(f"文本总长度（字符）: {len(data):,}")
 
 # -----------------------------------------------------------------------------
-# 2. 构建字符级词表（基于全量数据）
+# 2. 构建字符级词表（基于全量数据 + <eos> 结束符）
 # -----------------------------------------------------------------------------
+EOS_TOKEN = '<eos>'
 chars = sorted(list(set(data)))
-vocab_size = len(chars)
-print(f"词表大小: {vocab_size:,}")
-
-# 建立 字符↔整数 映射
+# <eos> 作为特殊 token，id 排在所有普通字符之后
+eos_id = len(chars)
 stoi = {ch: i for i, ch in enumerate(chars)}
 itos = {i: ch for i, ch in enumerate(chars)}
+stoi[EOS_TOKEN] = eos_id
+itos[eos_id] = EOS_TOKEN
+vocab_size = len(chars) + 1
+print(f"词表大小: {vocab_size:,}（含 <eos> 结束符）")
 
 def encode(s):
     return [stoi[c] for c in s]
@@ -59,7 +62,7 @@ def decode(l):
     return ''.join([itos[i] for i in l])
 
 # -----------------------------------------------------------------------------
-# 3. 按诗（行）打乱后划分训练/验证集
+# 3. 按诗（行）打乱后划分训练/验证集，每首诗末尾追加 <eos>
 # -----------------------------------------------------------------------------
 # 设置随机种子保证可复现
 random.seed(42)
@@ -71,12 +74,16 @@ split_idx = int(len(lines) * 0.9)
 train_lines = lines[:split_idx]
 val_lines = lines[split_idx:]
 
-# 拼接为文本
-train_data = ''.join(train_lines)
-val_data = ''.join(val_lines)
+# 逐首编码，每首末尾追加 eos_id
+train_ids = []
+for line in train_lines:
+    train_ids.extend(encode(line))
+    train_ids.append(eos_id)
 
-train_ids = encode(train_data)
-val_ids = encode(val_data)
+val_ids = []
+for line in val_lines:
+    val_ids.extend(encode(line))
+    val_ids.append(eos_id)
 
 print(f"训练集: {len(train_lines):,} 首诗, {len(train_ids):,} tokens")
 print(f"验证集: {len(val_lines):,} 首诗, {len(val_ids):,} tokens")
@@ -96,6 +103,7 @@ meta = {
     'vocab_size': vocab_size,
     'itos': itos,
     'stoi': stoi,
+    'eos_id': eos_id,
 }
 with open(os.path.join(os.path.dirname(__file__), 'meta.pkl'), 'wb') as f:
     pickle.dump(meta, f)
