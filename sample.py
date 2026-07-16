@@ -64,6 +64,7 @@ if load_meta:
         meta = pickle.load(f)
     # TODO want to make this more general to arbitrary encoder/decoder schemes
     stoi, itos = meta['stoi'], meta['itos']
+    eos_id = meta.get('eos_id', None)
     encode = lambda s: [stoi[c] for c in s]
     decode = lambda l: ''.join([itos[i] for i in l])
 else:
@@ -85,5 +86,10 @@ with torch.no_grad():
     with ctx:
         for k in range(num_samples):
             y = model.generate(x, max_new_tokens, temperature=temperature, top_k=top_k)
-            print(decode(y[0].tolist()))
+            out_ids = y[0].tolist()
+            # 遇到 <eos> 就截断，停止生成
+            if eos_id is not None and eos_id in out_ids:
+                eos_pos = out_ids.index(eos_id)
+                out_ids = out_ids[:eos_pos]
+            print(decode(out_ids))
             print('---------------')
