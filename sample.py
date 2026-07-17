@@ -73,6 +73,7 @@ else:
     enc = tiktoken.get_encoding("gpt2")
     encode = lambda s: enc.encode(s, allowed_special={"<|endoftext|>"})
     decode = lambda l: enc.decode(l)
+    eos_id = enc.eot_token  # GPT-2 的 <|endoftext|> token id (50256)
 
 # encode the beginning of the prompt
 if start.startswith('FILE:'):
